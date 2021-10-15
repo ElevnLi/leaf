@@ -21,22 +21,46 @@ if [ -z ${KEYS_PATH+x} ]; then echo "Couldn't find cert+key path! Are you sure L
 #--------------
 # DB
 #--------------
-docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$SA_PASSWORD" -p 1433:1433 --name leaf_db_demo mcr.microsoft.com/mssql/server:2017-latest 
+docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$SA_PASSWORD" -p 1433:1433 \
+                -v sqlvolume:/var/opt/mssql \
+                --name leaf_db_demo mcr.microsoft.com/mssql/server:2017-latest 
+
 sleep 10s
 
 docker_sqlcmd() {
     path="$1"
     shift  # get the remaining arguments
-    docker run \
+    docker run --rm\
       -v "$PWD"/src/db/build/:/sql \
       mcr.microsoft.com/mssql-tools \
       /opt/mssql-tools/bin/sqlcmd -S 'host.docker.internal' -U SA -P "$SA_PASSWORD" "$@" -i /sql/"$path"
 }
 
+docker_getDbs(){
+  echo "Checking DBs"
+  docker run --rm \
+         -v "$PWD"/src/db/build/:/sql \
+         mcr.microsoft.com/mssql-tools \
+         /opt/mssql-tools/bin/sqlcmd -S 'host.docker.internal' -U SA -P "$SA_PASSWORD" -Q "sp_databases" > contdbs
+}
 
-docker_sqlcmd LeafDB.sql
-docker_sqlcmd LeafDB.Init.sql -d LeafDB
-docker_sqlcmd TestDB.sql
+docker_getDbs
+if grep -q LeafDB contdbs; then
+  echo "LeafDB installed"
+else
+  echo "LeafDB not installed, installing..."
+  docker_sqlcmd LeafDB.sql
+  docker_sqlcmd LeafDB.Init.sql -d LeafDB
+  docker_sqlcmd TestDB.sql
+  docker_getDbs
+  if grep -q LeafDB contdbs; then
+    echo "LeafDB installed"
+  else
+    echo "!!! LeafDB still NOT installed"
+  fi
+fi
+
+rm contdbs
 
 #--------------
 # API
