@@ -41,11 +41,10 @@ docker_getDbs(){
   docker run --rm \
          -v "$PWD"/src/db/build/:/sql \
          mcr.microsoft.com/mssql-tools \
-         /opt/mssql-tools/bin/sqlcmd -S 'host.docker.internal' -U SA -P "$SA_PASSWORD" -Q "sp_databases" > contdbs
+         /opt/mssql-tools/bin/sqlcmd -S 'host.docker.internal' -U SA -P "$SA_PASSWORD" -Q "sp_databases"
 }
 
-docker_getDbs
-if grep -q LeafDB contdbs; then
+if docker_getDbs | grep -q LeafDB; then
   echo "LeafDB installed"
 else
   echo "LeafDB not installed, installing..."
