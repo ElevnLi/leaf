@@ -22,7 +22,7 @@ if [ -z ${KEYS_PATH+x} ]; then echo "Couldn't find cert+key path! Are you sure L
 # DB
 #--------------
 docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$SA_PASSWORD" -p 1433:1433 \
-                -v sqlvolume:/var/opt/mssql \
+                -v leaf_sqlvolume:/var/opt/mssql \
                 --name leaf_db_demo mcr.microsoft.com/mssql/server:2017-latest 
 
 sleep 10s
@@ -37,7 +37,6 @@ docker_sqlcmd() {
 }
 
 docker_getDbs(){
-  echo "Checking DBs"
   docker run --rm \
          -v "$PWD"/src/db/build/:/sql \
          mcr.microsoft.com/mssql-tools \
@@ -51,15 +50,12 @@ else
   docker_sqlcmd LeafDB.sql
   docker_sqlcmd LeafDB.Init.sql -d LeafDB
   docker_sqlcmd TestDB.sql
-  docker_getDbs
-  if grep -q LeafDB contdbs; then
+  if docker_getDbs | grep -q LeafDB; then
     echo "LeafDB installed"
   else
     echo "!!! LeafDB still NOT installed"
   fi
 fi
-
-rm contdbs
 
 #--------------
 # API
