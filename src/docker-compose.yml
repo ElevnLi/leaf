@@ -1,0 +1,49 @@
+version: '3'
+services:
+
+  db:
+    build:
+      context: ./db/build
+      args:
+        - sapw=Th3PA55--8zz
+    image: leaf_db
+    container_name: leaf_db_demo
+    ports:
+      - 1433:1433
+    networks:
+      - leaf
+
+  server:
+    build: ./server
+    image: leaf_api
+    container_name: leaf_api_demo
+    ports:
+      - 5001:5001
+    volumes:
+      - ./server/keys:/.keys
+      - ./server:/app
+      - server-log:/logs
+    networks:
+      - leaf
+    depends_on:
+      - db
+
+  ui-client:
+    build: ./ui-client
+    container_name: leaf_ui
+    ports:
+      - 3000:3000
+    volumes:
+      - ./ui-client:/app
+    networks:
+      - leaf
+    stdin_open: true
+    depends_on:
+      - db
+      - server
+
+networks:
+  leaf:
+
+volumes:
+  server-log:
