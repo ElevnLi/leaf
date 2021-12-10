@@ -23,6 +23,10 @@ services:
       - ./server/keys:/.keys
       - ./server:/app
       - server-log:/logs
+    environment:
+      - LEAF_APP_DB=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz
+      - LEAF_CLIN_DB=db,1433;Database=TestDB;uid=sa;Password=Th3PA55--8zz
+      - LEAF_JWT_KEY_PW=password
     networks:
       - leaf
     depends_on:
