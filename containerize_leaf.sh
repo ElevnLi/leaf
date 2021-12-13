@@ -1,3 +1,4 @@
+set -e
 
 # Set configurable stuff
 SA_PASSWORD=Th3PA55--8zz       # DB password
@@ -15,7 +16,7 @@ if [ -z ${LEAF_JWT_KEY+x}    ]; then echo "LEAF_JWT_KEY is unset!"    exit; fi
 if [ -z ${LEAF_JWT_KEY_PW+x} ]; then echo "LEAF_JWT_KEY_PW is unset!" exit; fi
 
 # Extract cert/key path from ENVs
-KEYS_PATH=`echo $LEAF_JWT_CERT | sed 's/\/cert.pem.*//'`
+KEYS_PATH=$(dirname "$LEAF_JWT_CERT")
 if [ -z ${KEYS_PATH+x} ]; then echo "Couldn't find cert+key path! Are you sure LEAF_JWT_CERT is a valid path?" && exit; fi
 
 #--------------
@@ -25,7 +26,7 @@ docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$SA_PASSWORD" -p 1433:1433 \
                 -v leaf_sqlvolume:/var/opt/mssql \
                 --name leaf_db_demo mcr.microsoft.com/mssql/server:2017-latest 
 
-sleep 10s
+sleep 10
 
 docker_sqlcmd() {
     path="$1"
@@ -36,7 +37,7 @@ docker_sqlcmd() {
       /opt/mssql-tools/bin/sqlcmd -S 'host.docker.internal' -U SA -P "$SA_PASSWORD" "$@" -i /sql/"$path"
 }
 
-docker_getDbs(){
+docker_getDbs() {
   docker run --rm \
          -v "$PWD"/src/db/build/:/sql \
          mcr.microsoft.com/mssql-tools \
