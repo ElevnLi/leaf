@@ -1,3 +1,4 @@
+set -e
 
 # Set configurable stuff
 SA_PASSWORD=Th3PA55--8zz       # DB password
@@ -15,28 +16,47 @@ if [ -z ${LEAF_JWT_KEY+x}    ]; then echo "LEAF_JWT_KEY is unset!"    exit; fi
 if [ -z ${LEAF_JWT_KEY_PW+x} ]; then echo "LEAF_JWT_KEY_PW is unset!" exit; fi
 
 # Extract cert/key path from ENVs
-KEYS_PATH=`echo $LEAF_JWT_CERT | sed 's/\/cert.pem.*//'`
+KEYS_PATH=$(dirname "$LEAF_JWT_CERT")
 if [ -z ${KEYS_PATH+x} ]; then echo "Couldn't find cert+key path! Are you sure LEAF_JWT_CERT is a valid path?" && exit; fi
 
 #--------------
 # DB
 #--------------
-docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$SA_PASSWORD" -p 1433:1433 --name leaf_db_demo mcr.microsoft.com/mssql/server:2017-latest 
-sleep 10s
+docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$SA_PASSWORD" -p 1433:1433 \
+                -v leaf_sqlvolume:/var/opt/mssql \
+                --name leaf_db_demo mcr.microsoft.com/mssql/server:2017-latest 
+
+sleep 10
 
 docker_sqlcmd() {
     path="$1"
     shift  # get the remaining arguments
-    docker run \
+    docker run --rm\
       -v "$PWD"/src/db/build/:/sql \
       mcr.microsoft.com/mssql-tools \
       /opt/mssql-tools/bin/sqlcmd -S 'host.docker.internal' -U SA -P "$SA_PASSWORD" "$@" -i /sql/"$path"
 }
 
+docker_getDbs() {
+  docker run --rm \
+         -v "$PWD"/src/db/build/:/sql \
+         mcr.microsoft.com/mssql-tools \
+         /opt/mssql-tools/bin/sqlcmd -S 'host.docker.internal' -U SA -P "$SA_PASSWORD" -Q "sp_databases"
+}
 
-docker_sqlcmd LeafDB.sql
-docker_sqlcmd LeafDB.Init.sql -d LeafDB
-docker_sqlcmd TestDB.sql
+if docker_getDbs | grep -q LeafDB; then
+  echo "LeafDB installed"
+else
+  echo "LeafDB not installed, installing..."
+  docker_sqlcmd LeafDB.sql
+  docker_sqlcmd LeafDB.Init.sql -d LeafDB
+  docker_sqlcmd TestDB.sql
+  if docker_getDbs | grep -q LeafDB; then
+    echo "LeafDB installed"
+  else
+    echo "!!! LeafDB still NOT installed"
+  fi
+fi
 
 #--------------
 # API
