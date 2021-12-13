@@ -24,16 +24,18 @@ services:
       - ./server:/app
       - server-log:/logs
     environment:
-      - LEAF_APP_DB=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz
-      - LEAF_CLIN_DB=db,1433;Database=TestDB;uid=sa;Password=Th3PA55--8zz
-      - LEAF_JWT_KEY_PW=password
+      LEAF_APP_DB: "Server=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz"
+      LEAF_CLIN_DB: "Server=db,1433;Database=TestDB;uid=sa;Password=Th3PA55--8zz"
+      LEAF_JWT_KEY_PW: "password"
     networks:
       - leaf
     depends_on:
       - db
 
   ui-client:
-    build: ./ui-client
+    build:
+      context: ./ui-client
+      dockerfile: Dockerfile-dev
     container_name: leaf_ui
     ports:
       - 3000:3000

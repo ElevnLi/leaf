@@ -67,7 +67,7 @@
     "source-map-loader": "^0.2.4",
     "typescript": "3.4.3"
   },
-  "proxy": "http://localhost:5001/",
+  "proxy": "http://server:5001/",
   "browserslist": [
     ">0.2%",
     "not dead",
