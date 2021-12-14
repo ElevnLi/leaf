@@ -1,0 +1,50 @@
+version: '3'
+services:
+
+  db:
+    build:
+      context: ./db/build
+      args:
+        - sapw=Th3PA55--8zz
+    image: leaf_db
+    container_name: leaf_db_demo
+    ports:
+      - 1433:1433
+    networks:
+      - leaf
+
+  server:
+    build: ./server
+    image: leaf_api
+    container_name: leaf_api_demo
+    ports:
+      - 5001:5001
+    volumes:
+      - server-log:/logs
+    environment:
+      LEAF_APP_DB: "Server=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz"
+      LEAF_CLIN_DB: "Server=db,1433;Database=TestDB;uid=sa;Password=Th3PA55--8zz"
+      LEAF_JWT_KEY_PW: "password"
+    networks:
+      - leaf
+    depends_on:
+      - db
+
+  ui-client:
+    build:
+      context: ./ui-client
+    container_name: leaf_ui
+    ports:
+      - 80:80
+    networks:
+      - leaf
+    stdin_open: true
+    depends_on:
+      - db
+      - server
+
+networks:
+  leaf:
+
+volumes:
+  server-log:

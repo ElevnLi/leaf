@@ -16,6 +16,9 @@ RUN useradd leaf                \
  
 COPY --chown=leaf:leafg . /data/server/
 RUN chmod 775 /data/server/
+
+COPY . /app
+COPY ./keys /.keys
  
 USER leaf
  
