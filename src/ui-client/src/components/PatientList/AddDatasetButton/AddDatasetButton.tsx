@@ -52,7 +52,7 @@ export default class AddDatasetButton extends React.PureComponent<Props, State> 
     constructor(props: Props) {
         super(props);
         this.state = {
-            selectedDates: dates[4],
+            selectedDates: dates[0],
             showDates: false,
             showSelectorModal: false
         }
@@ -168,7 +168,7 @@ export default class AddDatasetButton extends React.PureComponent<Props, State> 
     }
 
     private handleEncounterPanelSelect = (selectedEncounterPanel: number | undefined ) => {
-        const selectedDates = typeof selectedEncounterPanel === 'undefined' ? dates[4] : undefined;
+        const selectedDates = typeof selectedEncounterPanel === 'undefined' ? dates[0] : undefined;
         this.setState({ selectedEncounterPanel, selectedDates });
     }
 
