@@ -20,6 +20,8 @@ services:
     ports:
       - 5001:5001
     volumes:
+      - ./server/keys:/.keys
+      - ./server:/app
       - server-log:/logs
     environment:
       LEAF_APP_DB: "Server=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz"
