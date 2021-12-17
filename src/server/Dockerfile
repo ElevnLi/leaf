@@ -5,22 +5,11 @@ RUN rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-p
     && yum -y install util-linux     \
     && yum -y install vim-minimal    \
     && yum -y update                 \
-    && yum clean all
- 
-RUN useradd leaf                \
-    && groupadd leafg           \
-    && usermod -a -G leafg leaf \
-    && mkdir /data/             \
-    && chown leaf:leafg /data/  \
-    && chmod 775 /data/         
+    && yum clean all       
  
 COPY . /app
 COPY ./keys /.keys
-
-COPY --chown=leaf:leafg . /data/server/
-RUN chmod 775 /data/server/
- 
-USER leaf
+COPY . /data/server/
  
 # Configure Environment Variables
 ENV LEAF_JWT_CERT /.keys/cert.pem
