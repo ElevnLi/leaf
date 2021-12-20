@@ -5,7 +5,7 @@ ARG sapw
 RUN mkdir data
 
 # Include schema and initial data
-COPY ./LeafDB.sql ./LeafDB.Init.sql ./
+COPY ./LeafDB.sql ./LeafDB.Init.sql ./TestDB.sql ./
 
 # Accept EULA
 ENV ACCEPT_EULA Y
@@ -20,4 +20,5 @@ VOLUME /bak
 RUN /opt/mssql/bin/sqlservr & sleep 10 \
     && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./LeafDB.sql \
     && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./LeafDB.Init.sql -d LeafDB \
+    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./TestDB.sql \
     && pkill sqlservr
