@@ -67,6 +67,7 @@ docker run \
     -e "LEAF_APP_DB=Server=$DB_SERVER,1433;Database=LeafDB;uid=sa;Password=$SA_PASSWORD" \
     -e "LEAF_CLIN_DB=Server=$DB_SERVER,1433;Database=TestDB;uid=sa;Password=$SA_PASSWORD" \
     -e "LEAF_JWT_KEY_PW=$LEAF_JWT_KEY_PW" \
+    -e "UnsecuredIsAdmin"="true" \
     -p 5001:5001 \
     -v ${PWD}/src/server:/app \
     -v ${KEYS_PATH}:/.keys \
