@@ -27,6 +27,7 @@ services:
       LEAF_APP_DB: "Server=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz"
       LEAF_CLIN_DB: "Server=db,1433;Database=TestDB;uid=sa;Password=Th3PA55--8zz"
       LEAF_JWT_KEY_PW: "password"
+      UnsecuredIsAdmin: "true"
     networks:
       - leaf
     depends_on:
