@@ -5,7 +5,7 @@ services:
     build:
       context: ./db/build
       args:
-        - sapw=Th3PA55--8zz
+        - sapw=${SA_PASSWORD}
     image: leaf_db
     container_name: leaf_db_demo
     ports:
@@ -17,15 +17,13 @@ services:
     build: ./server
     image: leaf_api
     container_name: leaf_api_demo
-    ports:
-      - 5001:5001
     volumes:
       - server-log:/logs
     environment:
-      LEAF_APP_DB: "Server=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz"
-      LEAF_CLIN_DB: "Server=db,1433;Database=TestDB;uid=sa;Password=Th3PA55--8zz"
-      LEAF_JWT_KEY_PW: "password"
-      UnsecuredIsAdmin: "false"
+      - LEAF_APP_DB=${LEAF_APP_DB}
+      - LEAF_CLIN_DB=${LEAF_CLIN_DB}
+      - LEAF_JWT_KEY_PW=${LEAF_JWT_KEY_PW}
+      - UnsecuredIsAdmin=${UnsecuredIsAdminProd}
     networks:
       - leaf
     depends_on:
