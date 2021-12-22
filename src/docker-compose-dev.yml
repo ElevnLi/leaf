@@ -2,16 +2,9 @@ version: '3'
 services:
 
   db:
-    build:
-      context: ./db/build
-      args:
-        - sapw=Th3PA55--8zz
-    image: leaf_db
-    container_name: leaf_db_demo
-    ports:
-      - 1433:1433
-    networks:
-      - leaf
+    extends:
+      file: docker-compose.yml
+      service: db
 
   server:
     build: ./server
@@ -24,10 +17,10 @@ services:
       - ./server:/app
       - server-log:/logs
     environment:
-      LEAF_APP_DB: "Server=db,1433;Database=LeafDB;uid=sa;Password=Th3PA55--8zz"
-      LEAF_CLIN_DB: "Server=db,1433;Database=TestDB;uid=sa;Password=Th3PA55--8zz"
-      LEAF_JWT_KEY_PW: "password"
-      UnsecuredIsAdmin: "true"
+      - LEAF_APP_DB=${LEAF_APP_DB}
+      - LEAF_CLIN_DB=${LEAF_CLIN_DB}
+      - LEAF_JWT_KEY_PW=${LEAF_JWT_KEY_PW}
+      - UnsecuredIsAdmin=${UnsecuredIsAdminDev}
     networks:
       - leaf
     depends_on:
