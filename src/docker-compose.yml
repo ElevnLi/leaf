@@ -10,6 +10,7 @@ services:
     container_name: leaf_db_demo
     ports:
       - 1433:1433
+    restart: always
     networks:
       - leaf
 
@@ -24,6 +25,7 @@ services:
       - LEAF_CLIN_DB=${LEAF_CLIN_DB}
       - LEAF_JWT_KEY_PW=${LEAF_JWT_KEY_PW}
       - UnsecuredIsAdmin=${UnsecuredIsAdminProd}
+    restart: always
     networks:
       - leaf
     depends_on:
@@ -35,6 +37,7 @@ services:
     container_name: leaf_ui
     ports:
       - 80:80
+    restart: always
     networks:
       - leaf
     stdin_open: true
