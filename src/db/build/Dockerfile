@@ -1,12 +1,11 @@
-FROM microsoft/mssql-server-linux:2017-latest
+FROM mcr.microsoft.com/mssql/server:2017-latest
 
 ARG sapw
 
 RUN mkdir data
 
 # Include schema and initial data
-COPY ./LeafDB.sql ./LeafDB.Data.sql ./LeafDB.Exec.sql ./SynPuf_OMOP.Restore.sql ./SynPuf_OMOP.Shrink.sql ./
-COPY ./SynPuf_OMOP.bak ./data/
+COPY ./LeafDB.sql ./LeafDB.Init.sql ./TestDB.sql ./
 
 # Accept EULA
 ENV ACCEPT_EULA Y
@@ -20,10 +19,6 @@ VOLUME /bak
 # Set up database
 RUN /opt/mssql/bin/sqlservr & sleep 10 \
     && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./LeafDB.sql \
-    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./LeafDB.Data.sql \
-    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./LeafDB.Exec.sql \
-    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./SynPuf_OMOP.Restore.sql \
-    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./SynPuf_OMOP.Shrink.sql \
+    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./LeafDB.Init.sql -d LeafDB \
+    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P ${MSSQL_SA_PASSWORD} -i ./TestDB.sql \
     && pkill sqlservr
-
-RUN rm /data/SynPuf_OMOP.bak

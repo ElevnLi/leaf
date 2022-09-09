@@ -19,9 +19,16 @@ namespace API.Authorization
     {
         public Entitlement GetEntitlement(HttpContext _, IScopedIdentity __)
         {
+            String UnsecuredIsAdmin = Environment.GetEnvironmentVariable("UnsecuredIsAdmin");
+            var MyMask = RoleMask.User;
+            if (UnsecuredIsAdmin == "true")
+            {
+                MyMask = RoleMask.User | RoleMask.Admin | RoleMask.Super | RoleMask.Identified | RoleMask.Federated;
+            };
+
             return new Entitlement
             {
-                Mask = RoleMask.User | RoleMask.Admin | RoleMask.Super | RoleMask.Identified | RoleMask.Federated,
+                Mask = MyMask,
                 Groups = new string[] { "urn:leaf:localhost:groups:random_group" }
             };
         }
